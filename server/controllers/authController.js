@@ -248,18 +248,19 @@ const login = (req, res) => {
         // return res.status(500).json("Process in Development Here!");
 
         const token = jwt.sign({ id: data.rows[0].id }, "jwtkey");
-        const { password, ...other } = data.rows[0];
+        const { id, username, email, is_admin, ...other } = data.rows[0];
 
         req.session.token = token;
         req.session.save();
         console.log(req.session.token);
         console.log("Session Id: " + req.session.id);
-        res.status(200).json(other);
+        res.status(200).json({id,username,email,is_admin});
     });
 }
 
 const logout = (req, res) => {
-    console.log("Logout")
+    req.session.destroy();
+    res.status(200).json("User has logged out!");
 }
 
 module.exports = {

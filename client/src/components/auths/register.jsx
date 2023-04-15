@@ -1,9 +1,11 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { AuthContext } from "../utils/authContext";
 
 function Login() {
   const navigate = useNavigate();
+  const {currentUser} = useContext(AuthContext);
 
   // Initialize Inputs of the Form Inputs
   const [inputs, setInputs] = useState({
@@ -32,7 +34,11 @@ function Login() {
   }
 
   return (
-    <div className="relative flex flex-col justify-center min-h-screen overflow-hidden">
+    <>{currentUser
+      ?
+      (<>{window.location.href= "/"}</>)
+      :
+    (<div className="relative flex flex-col justify-center min-h-screen overflow-hidden">
       <div className="w-full p-6 m-auto bg-white rounded-md shadow-md lg:max-w-xl">
         <h1 className="text-3xl font-semibold text-center text-purple-700 underline">
           Register an Account
@@ -90,7 +96,8 @@ function Login() {
           </Link>
         </p>
       </div>
-    </div>
+    </div>)
+  }</>
   );
 }
 
