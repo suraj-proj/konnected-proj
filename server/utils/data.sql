@@ -21,9 +21,10 @@ CREATE TABLE ranks (
 CREATE TABLE levels (
         id SERIAL PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
+        sl_name VARCHAR(255) NOT NULL,
         is_verified VARCHAR(1)
         );
-        INSERT INTO levels (id, name, is_verified) 
+INSERT INTO levels (id, name, is_verified) 
         VALUES (1, 'Grade 1', '1'),
         (2, 'Grade 2', '1'),
         (3, 'Grade 3', '2'),
@@ -70,3 +71,30 @@ CREATE TABLE users (
           ON DELETE SET NULL
           ON UPDATE CASCADE
         );
+-- Create Books Table
+CREATE TABLE books (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        s_name VARCHAR(255) NOT NULL,
+        description VARCHAR(500) NOT NULL,
+        level INT,
+        author VARCHAR(50),
+        is_verified VARCHAR(1),
+        CONSTRAINT fk_level
+          FOREIGN KEY(level) 
+          REFERENCES levels(id)
+          ON DELETE SET NULL
+          ON UPDATE CASCADE
+);
+-- Create Topics Table
+CREATE TABLE topics (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        st_name VARCHAR(255) NOT NULL,
+        book INT,
+        CONSTRAINT fk_book
+          FOREIGN KEY(book) 
+          REFERENCES books(id)
+          ON DELETE SET NULL
+          ON UPDATE CASCADE
+);

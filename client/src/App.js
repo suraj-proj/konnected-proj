@@ -12,6 +12,10 @@ import Login from './components/auths/login';
 import Register from './components/auths/register';
 import ActivateAccount from "./components/utils/activateAccount";
 import ResetPassword from "./components/utils/resetPassword";
+import Books from "./components/bts/books";
+import BooksByLevel from "./components/bts/booksByLevel";
+import Book from "./components/bts/book";
+import CreateFields from "./components/bts/createFields";
 
 const Layout = ()=>{
   return (
@@ -38,6 +42,22 @@ const router = createBrowserRouter([
       {
         path: "/auth/reset-password",
         element: <ResetPassword />
+      },
+      {
+        path: "/books",
+        element: <Books />
+      },
+      {
+        path: "/books/:level",
+        element: <BooksByLevel />
+      },
+      {
+        path: "/book/:name/:id",
+        element: <Book />
+      },
+      {
+        path: "/create-fields",
+        element: <CreateFields />
       }
     ]
   },

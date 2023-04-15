@@ -42,7 +42,8 @@ const note_route = require('./routes/noteRoute');
 // Using path to route
 app.use("/api/auth",auth_route);
 
-// app.use("/api/books")
+app.use("/api/books",bt_route);
+app.use("/api/book",bt_route);
 
 // Listening server in port 5000
 app.listen(5000, (req,res)=>{
