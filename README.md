@@ -4,6 +4,7 @@ Konnected-proj is the main source folder inhabiting both the front-end and back-
 
 ### Get Started
 For the first time, open two terminal in VS Code. Only one will also be sufficient, but it will be better to have two terminal in split view for client and server. Then, follow the below steps to install dependencies and start the web:
+
 *Note: You must have installed [Node] and [npm] (It's included within [Node] package installer. No need to download separately)
 To check if node & npm is installed, run the command:
 **Node --version**
@@ -24,17 +25,18 @@ npm i
 npm start
 ```
 
-**Second Terminal (Server - Node)** [For every Start]
+**Second Terminal (Server - Node)**
 -- To install all the libraries used in the project, that is mentioned in the package.json file.
 ```sh
 cd server
 npm i
 ```
--- To start the server (Port is 5000)
+-- To start the server (Port is 5000) [For every Start]
 ```sh
 nodemon index
 ```
 *This will use nodemon library to auto restart the server on every change or save.*
+
 **Database - Postgresql**
 -- Install [Postgresql] in the system
 -- Run Postgresql DB
