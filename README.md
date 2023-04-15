@@ -15,6 +15,7 @@ If installed correctly, you'll see the version number.*
 [npm]: <https://nodejs.org/en/download>
 
 **First Terminal (Client - React)**
+
 -- To install all the libraries used in the project, that is mentioned in the package.json file.
 ```sh
 cd client
@@ -26,6 +27,7 @@ npm start
 ```
 
 **Second Terminal (Server - Node)**
+
 -- To install all the libraries used in the project, that is mentioned in the package.json file.
 ```sh
 cd server
@@ -38,6 +40,7 @@ nodemon index
 *This will use nodemon library to auto restart the server on every change or save.*
 
 **Database - Postgresql**
+
 -- Install [Postgresql] in the system
 -- Run Postgresql DB
 -- Open data.sql file in the utils folder of server and run the queries given (This is for the first time only)
