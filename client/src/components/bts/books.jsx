@@ -3,9 +3,22 @@ import React, { useContext, useEffect, useState } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../utils/authContext";
 
+function getUnique(array, key) {
+  if (typeof key !== 'function') {
+    const property = key;
+    key = function(item) { return item[property]; };
+  }
+  return Array.from(array.reduce(function(map, item) {
+    const k = key(item);
+    if (!map.has(k)) map.set(k, item);
+    return map;
+  }, new Map()).values());
+}
+
 function Books() {
   const navigate = useNavigate();
   const { currentUser } = useContext(AuthContext);
+  const [levels, setLevels] = useState([]);
   const [books, setBooks] = useState([]);
 
   const tag = useLocation().search;
@@ -15,8 +28,9 @@ function Books() {
     const fetchData = async () => {
       try {
         const res = await axios.get(`/books${tag}`);
-        console.log("data" + res.data.id);
+        console.log(res.data);
         setBooks(res.data);
+        setLevels(res.data);
       } catch (error) {
         console.log(error);
       }
@@ -38,7 +52,7 @@ function Books() {
         </>
       )}
       <ul className="max-w-md divide-y divide-gray-200">
-        {books.map((book) => (
+        {getUnique(books,'bid').slice(0).reverse().map((book) => (
           <li className="py-3 sm:py-4">
             <div className="flex items-center space-x-4">
               <Link to={`/book/${book.s_name}/${book.bid}`}>
@@ -60,7 +74,7 @@ function Books() {
               </Link>
               <Link to={`/books/${book.sl_name}`}>
                 <div className="inline-flex items-center text-base font-semibold text-gray-900">
-                  {book.lname}
+                {levels.map((level) => ((level.bid===book.bid) ? level.lname + ' | ' : null))}
                 </div>
               </Link>
             </div>

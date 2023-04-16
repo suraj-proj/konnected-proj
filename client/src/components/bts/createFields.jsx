@@ -1,42 +1,154 @@
-import React, { useContext, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../utils/authContext";
 import axios from "axios";
 
+// Level
+const LevelsFetch = (props) => {
+  const [levels,setLevels] = useState([]);
+  const [selectValue, setSelectValue] = useState([]);
+  const [selectedValue, setSelectedValue] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await axios.get(`/levels`);
+        // console.log(res.data);
+        setLevels(res.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const onChangeSelect = (e) => {
+    setSelectValue(e.target.value);
+  };
+
+  const addSelectedValue = (value) => {
+    if (value != "") {
+      setSelectedValue([...selectedValue, value]);
+      // console.log(selectValue);
+      props.selectedLevel([...selectedValue, value]);
+      setSelectValue("");
+    }
+  };
+
+  const removeSelectedValue = (indexToRemove) => {
+    setSelectedValue(selectedValue.filter((_, index) => index != indexToRemove));
+  };
+
+  return (
+    <div>
+      <div className="tags-input">
+        <input type="text" name="btopic" placeholder="Associated books"
+          onChange={onChangeSelect} value={selectValue}
+          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        />
+        <ul className="my-2">
+          {selectedValue.map((value, index) => (
+            <li className="text-white bg-[#1da1f2] hover:bg-[#1da1f2]/90 focus:ring-4 focus:outline-none focus:ring-[#1da1f2]/50 font-medium rounded-lg text-sm px-2.5 py-1 text-center inline-flex items-center dark:focus:ring-[#1da1f2]/55 mr-2 mb-2">
+              <span>{value.name}</span>
+              <span className="sr-only">Close</span>
+              <svg
+                aria-hidden="true"
+                onClick={() => removeSelectedValue(index)}
+                className="w-5 h-5"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                ></path>
+              </svg>
+            </li>
+          ))}
+        </ul>
+        <div id="dropdown" className={"z-10 bg-gray-50 rounded-lg border border-gray-300 text-gray-900 text-sm divide-y divide-gray-100 shadow w-44"}>
+          <ul className="my-2 text-sm" aria-labelledby="dropdownDefaultButton">
+            {levels
+              .filter((data) => {
+                const searchTerm = selectValue.toString().toLowerCase();
+                const tname = data.name.toString().toLowerCase();
+                const alreadyIncluded = selectedValue.some(value => {
+                  if(value.id == data.id)  return true;
+                })
+                return (
+                  tname.startsWith(searchTerm) &&
+                  !alreadyIncluded
+                );
+              })
+              .map((data) => (
+                <li onClick={() => addSelectedValue({name: data.name, id: data.id})}
+                  className="block px-4 py-2 rounded-lg hover:bg-white" style={{ cursor: "pointer" }} >
+                  {data.name}
+                </li>
+              ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 function CreateFields() {
   const [openTab, setOpenTab] = React.useState(1);
   const navigate = useNavigate();
-  const {currentUser} = useContext(AuthContext);
+  const { currentUser } = useContext(AuthContext);
+
+  const [sendingLevel,setSendingLevel] = useState({});
 
   // Initialize Inputs of the Form Inputs
   const [bookInputs, setBookInputs] = useState({
     bname: "",
     bdescription: "",
-    blevel: "",
     bauthor: "",
-  })
+  });
 
   // Set error from response
   const [err, setError] = useState(null);
 
   const [suc, setSuc] = useState(null);
 
+  // const selected = tags => console.log(tags);
+
   // Handle Changes in the form inputs
-  const handleChange = e =>{
-    setBookInputs(prev=>({...prev, [e.target.name]: e.target.value}))
-  }
+  const handleChange = (e) => {
+    // selectedLevel();
+    setBookInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    console.log(bookInputs)
+  };
 
-  console.log(bookInputs);
+  // console.log(bookInputs);
 
-  const addBook = async e => {
+  const addBook = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("/books/add-book",bookInputs,{withCredentials:true});
-      setSuc(res.data)
+      console.log(sendingLevel)
+      console.log(bookInputs)
+      // setBookInputs((prev) => ({ ...prev, blevel:sendingLevel }));
+      const res = await axios.post("/books/add-book", {objects:[bookInputs, sendingLevel]}, {
+        withCredentials: true,
+      });
+      setSuc(res.data);
     } catch (error) {
       setError(error.response.data);
     }
   };
+
+  const selectedLevel = (selectedValue) => {
+    // setBookInputs((prev) => ({ ...prev, blevel:selectedValue }))
+    setSendingLevel(selectedValue);
+  }
+
+  // console.log(sendingLevel);
+
+  // console.log(selectedLevel);
+
   return (
     <>
       <div className="flex flex-wrap">
@@ -112,61 +224,67 @@ function CreateFields() {
                   {/* Add Book */}
                   <div>
                     <label
-                      for="book_name"
-                      class="block mb-2 text-sm font-medium text-gray-900"
+                      htmlFor="book_name"
+                      className="block mb-2 text-sm font-medium text-gray-900"
                     >
                       Book Title
                     </label>
-                    <input type="text" id="book_name" name="bname"
-                      placeholder="Title of the book" onChange={handleChange}
-                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    <input
+                      type="text"
+                      id="book_name"
+                      name="bname"
+                      placeholder="Title of the book"
+                      onChange={handleChange}
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     />
                   </div>
                   <div>
-                    <label for="book_desc"
-                      class="block mb-2 text-sm font-medium text-gray-900"
+                    <label
+                      htmlFor="book_desc"
+                      className="block mb-2 text-sm font-medium text-gray-900"
                     >
                       Book Description
                     </label>
-                    <input type="text" id="book_desc" name="bdescription"
-                      placeholder="Short description of the book"  onChange={handleChange}
-                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    <input
+                      type="text"
+                      id="book_desc"
+                      name="bdescription"
+                      placeholder="Short description of the book"
+                      onChange={handleChange}
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     />
                   </div>
                   <div>
-                    <label for="levels"
-                      class="block mb-2 text-sm font-medium text-gray-900"
+                    <label
+                      className="block mb-2 text-sm font-medium text-gray-900"
                     >
-                        Recommended for
+                      Recommended for
                     </label>
-                    <select id="levels" name="blevel" onChange={handleChange}
-                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    >
-                      <option selected>Choose a level</option>
-                      <option value="1">Grade 1</option>
-                      <option value="2">Grade 2</option>
-                      <option value="3">Grade 3</option>
-                      <option value="4">Grade 4</option>
-                    </select>
+                    <LevelsFetch selectedLevel={selectedLevel} />
                   </div>
                   <div>
-                    <label for="book_author"
-                      class="block mb-2 text-sm font-medium text-gray-900"
+                    <label
+                      htmlFor="book_author"
+                      className="block mb-2 text-sm font-medium text-gray-900"
                     >
                       Author
                     </label>
-                    <input type="text" id="book_author" name="bauthor"
-                      placeholder="Author of the book" onChange={handleChange}
-                      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    <input
+                      type="text"
+                      id="book_author"
+                      name="bauthor"
+                      placeholder="Author of the book"
+                      onChange={handleChange}
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     />
                   </div>
                   <button
-            type="button"
-            onClick={addBook}
-            class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 "
-          >
-            Add Book
-          </button>
+                    type="button"
+                    onClick={addBook}
+                    className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 "
+                  >
+                    Add Book
+                  </button>
                 </div>
                 <div className={openTab === 2 ? "block" : "hidden"} id="link2">
                   {/* Add Topic */}

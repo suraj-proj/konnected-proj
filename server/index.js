@@ -37,6 +37,8 @@ const auth_route = require('./routes/authRoute');
 const user_route = require('./routes/userRoute');
 const bt_route = require('./routes/btRoute');
 const note_route = require('./routes/noteRoute');
+const topic_route = require('./routes/topicRoute');
+const level_route = require('./routes/levelRoute')
 
 
 // Using path to route
@@ -44,6 +46,10 @@ app.use("/api/auth",auth_route);
 
 app.use("/api/books",bt_route);
 app.use("/api/book",bt_route);
+
+app.use("/api/topics",topic_route);
+
+app.use("/api/levels",level_route);
 
 // Listening server in port 5000
 app.listen(5000, (req,res)=>{

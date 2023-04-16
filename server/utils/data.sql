@@ -98,3 +98,20 @@ CREATE TABLE topics (
           ON DELETE SET NULL
           ON UPDATE CASCADE
 );
+
+-- Create BookLevel Junction Table
+CREATE TABLE bookLevel (
+        id SERIAL PRIMARY KEY,
+        book_id INT,
+        level_id INT,
+        CONSTRAINT fk_book
+          FOREIGN KEY(book_id) 
+          REFERENCES books(id)
+          ON DELETE SET NULL
+          ON UPDATE CASCADE,
+        CONSTRAINT fk_level
+          FOREIGN KEY(level_id) 
+          REFERENCES levels(id)
+          ON DELETE SET NULL
+          ON UPDATE CASCADE
+);
